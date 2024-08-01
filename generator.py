@@ -18,12 +18,26 @@ def generate_password(length):
     password = ''.join(secrets.choice(alphabet) for i in range(length))
     return password
 
-# Function to save password with name or site
+# Function to save password for the URL of site, overwriting if it exists
 def save_password(filepath, name, password):
-    with open(filepath, "a") as file:
-        file.write(f"{name}:      {password}\n")
-        file.write("\n")
-        file.write("\n")
+    try:
+        with open(filepath, "r") as file:
+            lines = file.readlines()
+    except FileNotFoundError:
+        lines = []
+
+    with open(filepath, "w") as file:
+        entry_found = False
+        for line in lines:
+            if line.startswith(f"{name}:"):
+                file.write(f"{name}:    {password}\n")
+                entry_found = True
+            else:
+                file.write(line)
+        if not entry_found:
+            if lines:
+                file.write("\n")
+            file.write(f"{name}:    {password}")
 
 # Function to validate URL
 def is_valid_url(url):
@@ -59,7 +73,7 @@ def on_generate_click():
     except ValueError:
         messagebox.showerror("Invalid Length", "Please enter a valid number.")
         return
-    
+
     # Load existing passwords
     try:
         with open(save_path) as file:
@@ -96,7 +110,7 @@ length_label.pack(pady=10)
 length_entry = tk.Entry(root, width=20)
 length_entry.pack(pady=10)
 
-generate_button = tk.Button(root, text="Generate Password", fg='green', bg='black', command=on_generate_click)
+generate_button = tk.Button(root, text="Generate Password", fg='darkslateblue', bg='yellow', command=on_generate_click)
 generate_button.pack(pady=20)
 
 # Run the application
